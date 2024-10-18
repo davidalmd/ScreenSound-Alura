@@ -1,5 +1,39 @@
-﻿using ScreenSound.Menus;
+﻿using ScreenSound.Banco;
+using ScreenSound.Menus;
 using ScreenSound.Modelos;
+
+try
+{
+    var artistaDAL = new ArtistaDAL();
+
+    //var ArtistaMichael = new Artista("Michael Jackson", "Billy Jean is not my lover, she's just a girl, thinking, I am the one, but the kid is not my son.") { Id = 1005};
+
+    var listaArtista = artistaDAL.Listar();
+
+    foreach (var artista in listaArtista)
+    {
+        Console.WriteLine(artista);
+    }
+
+    var ArtistaBillie = new Artista("Billie", "cantora e compositora, nascida nos Estados Unidos. Ganhou notoriedade e fam acom seu single \"Ocean Eyes\", escrito e produzido por seu irmão Finneas.") { Id = 1 };
+
+    artistaDAL.Atualizar(ArtistaBillie);
+
+    //artistaDAL.Deletar(ArtistaMichael);
+
+    listaArtista = artistaDAL.Listar();
+
+    foreach (var artista in listaArtista)
+    {
+        Console.WriteLine(artista);
+    }
+}
+catch (Exception ex)
+{
+    Console.WriteLine(ex.Message);
+}
+
+return;
 
 Artista ira = new Artista("Ira!", "Banda Ira!");
 Artista beatles = new("The Beatles", "Banda The Beatles");
