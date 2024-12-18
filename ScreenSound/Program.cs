@@ -4,24 +4,15 @@ using ScreenSound.Modelos;
 
 try
 {
-    var artistaDAL = new ArtistaDAL();
+    var context = new ScreenSoundContext();
+    var artistaDAL = new ArtistaDAL(context);
 
-    //var ArtistaMichael = new Artista("Michael Jackson", "Billy Jean is not my lover, she's just a girl, thinking, I am the one, but the kid is not my son.") { Id = 1005};
+    var novoArtista = new Artista("Gilberto Gil", "Gilberto Passos Gil Moreira é um produtor musical, multi-instrumentista, compositor, cantor, político e escritor brasileiro.") { Id = 1002 };
+
+    artistaDAL.Atualizar(novoArtista);
+    artistaDAL.Deletar(novoArtista);
 
     var listaArtista = artistaDAL.Listar();
-
-    foreach (var artista in listaArtista)
-    {
-        Console.WriteLine(artista);
-    }
-
-    var ArtistaBillie = new Artista("Billie", "cantora e compositora, nascida nos Estados Unidos. Ganhou notoriedade e fam acom seu single \"Ocean Eyes\", escrito e produzido por seu irmão Finneas.") { Id = 1 };
-
-    artistaDAL.Atualizar(ArtistaBillie);
-
-    //artistaDAL.Deletar(ArtistaMichael);
-
-    listaArtista = artistaDAL.Listar();
 
     foreach (var artista in listaArtista)
     {
