@@ -7,16 +7,27 @@ try
     var context = new ScreenSoundContext();
     var artistaDAL = new ArtistaDAL(context);
 
-    var novoArtista = new Artista("Gilberto Gil", "Gilberto Passos Gil Moreira é um produtor musical, multi-instrumentista, compositor, cantor, político e escritor brasileiro.") { Id = 1002 };
+    //var novoArtista = new Artista("Gilberto Gil", "Gilberto Passos Gil Moreira é um produtor musical, multi-instrumentista, compositor, cantor, político e escritor brasileiro.");
 
-    artistaDAL.Atualizar(novoArtista);
-    artistaDAL.Deletar(novoArtista);
+    //artistaDAL.Adicionar(novoArtista);
+    //artistaDAL.Deletar(novoArtista);
 
     var listaArtista = artistaDAL.Listar();
 
     foreach (var artista in listaArtista)
     {
         Console.WriteLine(artista);
+    }
+
+    var artistaRecuperado = artistaDAL.RecuperarPeloNome("Jorge Vercílio");
+
+    if (artistaRecuperado != null)
+    {
+        Console.WriteLine(artistaRecuperado);
+    }
+    else
+    {
+        Console.WriteLine("Artista não encontrado");
     }
 }
 catch (Exception ex)
