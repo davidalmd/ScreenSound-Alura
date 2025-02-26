@@ -1,11 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using ScreenSound.Modelos;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ScreenSound.Banco
 {
@@ -20,6 +14,15 @@ namespace ScreenSound.Banco
             optionsBuilder
                 .UseSqlServer(connectionString)
                 .UseLazyLoadingProxies();
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Musica>()
+                .HasOne(m => m.Artista)
+                .WithMany(a => a.Musicas)
+                .HasForeignKey(m => m.ArtistaId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
