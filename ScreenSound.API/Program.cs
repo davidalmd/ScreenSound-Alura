@@ -5,19 +5,23 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
+builder.Services.AddDbContext<ScreenSoundContext>();
+builder.Services.AddTransient<DAL<Artista>>();
+
 var app = builder.Build();
 
 app.MapGet("/", () => "API do projeto ScreenSound está rondando!");
 
-app.MapGet("/Artistas", () =>
+#region Endpoints de Artistas
+
+app.MapGet("/Artistas", ([FromServices] DAL<Artista> DAL) =>
 {
-    var DAL = new DAL<Artista>(new ScreenSoundContext());
     return Results.Ok(DAL.Listar());
 });
 
-app.MapGet("/Artistas/{nome}", (string nome) =>
+app.MapGet("/Artistas/{nome}", ([FromServices] DAL<Artista> DAL, string nome) =>
 {
-    var DAL = new DAL<Artista>(new ScreenSoundContext());
     var artista = DAL.RecuperarPor(a => a.Nome.ToUpper().Equals(nome.ToUpper()));
 
     if (artista is null) return Results.NotFound();
@@ -30,11 +34,34 @@ app.MapGet("/Artistas/{nome}", (string nome) =>
     return Results.Ok(artistaLimpo);
 });
 
-app.MapPost("/Artistas", ([FromBody] Artista artista) =>
+app.MapPost("/Artistas", ([FromServices] DAL<Artista> DAL, [FromBody] Artista artista) =>
 {
-    var DAL = new DAL<Artista>(new ScreenSoundContext());
     DAL.Adicionar(artista);
     return Results.Ok();
 });
+
+app.MapDelete("/Artistas/{id}", ([FromServices] DAL<Artista> DAL, int id) =>
+{
+    var artista = DAL.RecuperarPor(a => a.Id == id);
+    if (artista is null) return Results.NotFound();
+
+    DAL.Deletar(artista);
+    return Results.NoContent();
+});
+
+app.MapPut("/Artistas", ([FromServices] DAL<Artista> DAL, [FromBody] Artista artista) =>
+{
+    var artistaAtual = DAL.RecuperarPor(a => a.Id == artista.Id);
+    if (artistaAtual is null) return Results.NotFound();
+
+    artistaAtual.Nome = artista.Nome;
+    artistaAtual.Bio = artista.Bio;
+    artistaAtual.FotoPerfil = artista.FotoPerfil;
+
+    DAL.Atualizar(artistaAtual);
+    return Results.NoContent();
+});
+
+#endregion
 
 app.Run();
