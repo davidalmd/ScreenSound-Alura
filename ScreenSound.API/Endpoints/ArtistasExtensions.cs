@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ScreenSound.API.Requests;
+using ScreenSound.API.Response;
 using ScreenSound.Banco;
 using ScreenSound.Modelos;
 
@@ -11,7 +12,7 @@ public static class ArtistasExtensions
     {
         app.MapGet("/Artistas", ([FromServices] DAL<Artista> DAL) =>
         {
-            return Results.Ok(DAL.Listar());
+            return Results.Ok(EntityListToResponseList(DAL.Listar()));
         });
 
         app.MapGet("/Artistas/{nome}", ([FromServices] DAL<Artista> DAL, string nome) =>
@@ -22,12 +23,12 @@ public static class ArtistasExtensions
             {
                 Id = artista.Id,
             };
-            return Results.Ok(artistaLimpo);
+            return Results.Ok(EntityToResponse(artistaLimpo));
         });
 
         app.MapPost("/Artistas", ([FromServices] DAL<Artista> DAL, [FromBody] ArtistaRequest artistaRequest) =>
         {
-            var artista = new Artista(artistaRequest.nome, artistaRequest.bio);
+            var artista = new Artista(artistaRequest.Nome, artistaRequest.Bio);
             DAL.Adicionar(artista);
             return Results.Ok();
         });
@@ -41,17 +42,27 @@ public static class ArtistasExtensions
             return Results.NoContent();
         });
 
-        app.MapPut("/Artistas", ([FromServices] DAL<Artista> DAL, [FromBody] Artista artista) =>
+        app.MapPut("/Artistas", ([FromServices] DAL<Artista> DAL, [FromBody] ArtistaRequestEdit artistaRequestEdit) =>
         {
-            var artistaAtual = DAL.RecuperarPor(a => a.Id == artista.Id);
+            var artistaAtual = DAL.RecuperarPor(a => a.Id == artistaRequestEdit.Id);
             if (artistaAtual is null) return Results.NotFound();
 
-            artistaAtual.Nome = artista.Nome;
-            artistaAtual.Bio = artista.Bio;
-            artistaAtual.FotoPerfil = artista.FotoPerfil;
+            artistaAtual.Nome = string.IsNullOrWhiteSpace(artistaRequestEdit.Nome) ? artistaAtual.Nome : artistaRequestEdit.Nome;
+            artistaAtual.Bio = string.IsNullOrWhiteSpace(artistaRequestEdit.Bio) ? artistaAtual.Bio : artistaRequestEdit.Bio;
+            artistaAtual.FotoPerfil = string.IsNullOrWhiteSpace(artistaRequestEdit.FotoPerfil) ? artistaAtual.FotoPerfil : artistaRequestEdit.FotoPerfil;
 
             DAL.Atualizar(artistaAtual);
             return Results.NoContent();
         });
+    }
+
+    private static ICollection<ArtistaResponse> EntityListToResponseList(IEnumerable<Artista> listaDeArtistas)
+    {
+        return listaDeArtistas.Select(a => EntityToResponse(a)).ToList();
+    }
+
+    private static ArtistaResponse EntityToResponse(Artista artista)
+    {
+        return new ArtistaResponse(artista.Id, artista.Nome, artista.Bio, artista.FotoPerfil);
     }
 }

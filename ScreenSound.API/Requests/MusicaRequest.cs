@@ -3,6 +3,6 @@
 namespace ScreenSound.API.Requests;
 
 public record MusicaRequest(
-    [Required] string nome,
-    [Required] int anoLancamento,
-    [Required] int artistaId);
+    [Required] string Nome,
+    [Required] int AnoLancamento,
+    [Required] int ArtistaId);
