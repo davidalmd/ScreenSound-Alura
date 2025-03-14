@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ScreenSound.Modelos;
+using ScreenSound.Shared.Modelos.Modelos;
 
 namespace ScreenSound.Banco
 {
@@ -8,6 +9,7 @@ namespace ScreenSound.Banco
         private string connectionString = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ScreenSoundV0;Integrated Security=True;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False";
         public DbSet<Artista> Artistas { get; set; }
         public DbSet<Musica> Musicas { get; set; }
+        public DbSet<Genero> Generos { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -23,6 +25,10 @@ namespace ScreenSound.Banco
                 .WithMany(a => a.Musicas)
                 .HasForeignKey(m => m.ArtistaId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Musica>()
+                .HasMany(m => m.Generos)
+                .WithMany(g => g.Musicas);
         }
     }
 }

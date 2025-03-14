@@ -3,6 +3,7 @@ using ScreenSound.API.Requests;
 using ScreenSound.API.Response;
 using ScreenSound.Banco;
 using ScreenSound.Modelos;
+using ScreenSound.Shared.Modelos.Modelos;
 
 namespace ScreenSound.API.Endpoints;
 
@@ -27,11 +28,12 @@ public static class MusicasExtensions
             return Results.Ok(EntityToResponse(musicaLimpa));
         });
 
-        app.MapPost("/Musicas", ([FromServices] DAL<Musica> DAL, [FromBody] MusicaRequest musicaRequest) =>
+        app.MapPost("/Musicas", ([FromServices] DAL<Musica> DAL, [FromServices] DAL<Genero> DALGenero, [FromBody] MusicaRequest musicaRequest) =>
         {
             var musica = new Musica(musicaRequest.Nome, musicaRequest.AnoLancamento)
             {
-                ArtistaId = musicaRequest.ArtistaId
+                ArtistaId = musicaRequest.ArtistaId,
+                Generos = musicaRequest.Generos is not null ? GeneroRequestConverter(musicaRequest.Generos, DALGenero) : new List<Genero>()
             };
             DAL.Adicionar(musica);
             return Results.Ok();
@@ -59,9 +61,31 @@ public static class MusicasExtensions
         });
     }
 
+    private static ICollection<Genero> GeneroRequestConverter(ICollection<GeneroRequest> generos, DAL<Genero> DALGenero)
+    {
+        var listaGeneros = new List<Genero>();
+        foreach (var item in generos)
+        {
+            var genero = DALGenero.RecuperarPor(g => g.Nome!.ToUpper().Equals(item.Nome.ToUpper()));
+
+            if (genero is null) listaGeneros.Add(RequestToEntity(item));
+        }
+
+        return listaGeneros;
+    }
+
+    private static Genero RequestToEntity(GeneroRequest genero)
+    {
+        return new Genero()
+        {
+            Nome = genero.Nome,
+            Descricao = genero.Descricao
+        };
+    }
+
     private static ICollection<MusicaResponse> EntityListToResponseList(IEnumerable<Musica> musicaList)
     {
-        return musicaList.Select(a => EntityToResponse(a)).ToList();
+        return musicaList.Select(EntityToResponse).ToList();
     }
 
     private static MusicaResponse EntityToResponse(Musica musica)
