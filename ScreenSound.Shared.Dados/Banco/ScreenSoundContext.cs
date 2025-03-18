@@ -11,8 +11,16 @@ namespace ScreenSound.Banco
         public DbSet<Musica> Musicas { get; set; }
         public DbSet<Genero> Generos { get; set; }
 
+        public ScreenSoundContext(DbContextOptions options) : base(options)
+        {
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            if (optionsBuilder.IsConfigured)
+            {
+                return;
+            }
             optionsBuilder
                 .UseSqlServer(connectionString)
                 .UseLazyLoadingProxies();
